@@ -786,7 +786,7 @@
 ]'></textarea>
           <button class="btn light" id="importJsonBtn">Import JSON</button>
           <div class="helper-box">
-            Best for scaling: keep your games in JSON and import when you want to update the browser catalog fast.
+            Best for scaling: keep your games in <strong>games.json</strong>, copy-paste a new game object, upload the matching folder into <strong>/games</strong>, and refresh.
           </div>
         </div>
       </div>
@@ -796,76 +796,76 @@
   <script>
     const starterGames = [
       {
-        id: "slope",
-        title: "Slope Rush",
-        category: "Arcade",
-        tags: ["Fast", "3D", "Reflex"],
+        id: "basket-random",
+        title: "Basket Random",
+        category: "Sports",
+        tags: ["Basketball", "2 Player", "Physics"],
         image: "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=1200&q=80",
         iframeUrl: "https://www.crazygames.com/embed/basket-random",
         rating: 4.8,
         plays: 182340,
         featured: true,
-        description: "A speed-heavy dodging game with sharp turns, neon ramps, and instant restarts.",
+        description: "A chaotic basketball game with unpredictable movement, one-button controls, and fast rematches.",
       },
       {
-        id: "skydrift",
-        title: "Sky Drift X",
-        category: "Racing",
-        tags: ["Cars", "Drift", "Competitive"],
+        id: "space-waves",
+        title: "Space Waves",
+        category: "Arcade",
+        tags: ["Reflex", "Neon", "Fast"],
         image: "https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=1200&q=80",
         iframeUrl: "https://www.crazygames.com/embed/space-waves",
         rating: 4.6,
         plays: 96440,
         featured: true,
-        description: "Short race loops, boost pads, and clean drifting with quick replay value.",
+        description: "Guide your arrow through sharp neon corridors, dodge obstacles, and survive increasingly intense levels.",
       },
       {
-        id: "blockrealm",
-        title: "Block Realm",
+        id: "tiles-of-the-unexpected",
+        title: "Tiles of the Unexpected",
         category: "Puzzle",
-        tags: ["Logic", "Relaxing", "Casual"],
+        tags: ["Logic", "Tiles", "Casual"],
         image: "https://images.unsplash.com/photo-1515879218367-8466d910aaa4?auto=format&fit=crop&w=1200&q=80",
         iframeUrl: "https://www.crazygames.com/embed/tiles-of-the-unexpected",
         rating: 4.5,
         plays: 51220,
         featured: false,
-        description: "Chain together shapes and clear space using simple mechanics that get deeper over time.",
+        description: "A puzzle game built around tile placement, pattern recognition, and quick thinking.",
       },
       {
-        id: "arena-zero",
-        title: "Arena Zero",
-        category: "Action",
-        tags: ["Shooter", "Arena", "Skill"],
+        id: "escaping-the-prison",
+        title: "Escaping the Prison",
+        category: "Adventure",
+        tags: ["Choice", "Stickman", "Story"],
         image: "https://images.unsplash.com/photo-1542751110-97427bbecf20?auto=format&fit=crop&w=1200&q=80",
         iframeUrl: "https://www.crazygames.com/embed/escaping-the-prison",
         rating: 4.9,
         plays: 230410,
         featured: true,
-        description: "A tight arena shooter built around movement, timing, and high-score runs.",
+        description: "Pick your way through a series of funny escape choices and see which endings you can unlock.",
       },
       {
-        id: "kingdom-merge",
-        title: "Kingdom Merge",
+        id: "idle-breakout",
+        title: "Idle Breakout",
         category: "Strategy",
-        tags: ["Build", "Management", "Idle"],
+        tags: ["Idle", "Upgrade", "Clicker"],
         image: "https://images.unsplash.com/photo-1511988617509-a57c8a288659?auto=format&fit=crop&w=1200&q=80",
         iframeUrl: "https://www.crazygames.com/embed/idle-breakout",
         rating: 4.4,
         plays: 34110,
         featured: false,
-        description: "Combine resources, expand your land, and stack upgrades into a bigger empire.",
+        description: "Break bricks, earn money, and invest in upgrades that automate and speed up your progress.",
       },
       {
-        id: "pixel-strike",
-        title: "Pixel Strike Club",
+        id: "shellshockersio",
+        title: "Shell Shockers",
         category: "Multiplayer",
-        tags: ["PvP", "Pixel", "Online"],
+        tags: ["FPS", "Online", "PvP"],
         image: "https://images.unsplash.com/photo-1493711662062-fa541adb3fc8?auto=format&fit=crop&w=1200&q=80",
         iframeUrl: "https://www.crazygames.com/embed/shellshockersio",
         rating: 4.7,
         plays: 120002,
         featured: false,
-        description: "Jump into short online matches with simple controls and quick map rotations.",
+        description: "A multiplayer shooter where armed eggs battle in quick online matches with different weapon classes.",
       },
     ];
 
@@ -885,7 +885,7 @@
     const storageKey = "midnight-arcade-games";
     const favoritesKey = "midnight-arcade-favorites";
 
-    let games = loadGames();
+    let games = [];
     let favorites = loadFavorites();
     let selectedCategory = "All";
     let query = "";
@@ -902,12 +902,34 @@
     const addModal = document.getElementById("addModal");
     const mobileSidebarOverlay = document.getElementById("mobileSidebarOverlay");
 
-    function loadGames() {
+    async function loadGames() {
+      try {
+        const response = await fetch("games.json", { cache: "no-store" });
+        if (!response.ok) throw new Error("Could not load games.json");
+        const data = await response.json();
+        if (Array.isArray(data) && data.length) {
+          games = data;
+          activeGame = games[0] || null;
+          render();
+          return;
+        }
+      } catch (e) {
+        console.warn("games.json not found or invalid, using fallback data.", e);
+      }
+
       try {
         const saved = JSON.parse(localStorage.getItem(storageKey));
-        if (Array.isArray(saved) && saved.length) return saved;
+        if (Array.isArray(saved) && saved.length) {
+          games = saved;
+          activeGame = games[0] || null;
+          render();
+          return;
+        }
       } catch (e) {}
-      return starterGames;
+
+      games = starterGames;
+      activeGame = games[0] || null;
+      render();
     }
 
     function loadFavorites() {
@@ -1291,7 +1313,7 @@
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "midnight-arcade-games.json";
+      a.download = "games.json";
       a.click();
       URL.revokeObjectURL(url);
     }
@@ -1343,8 +1365,9 @@
     }
 
     bindGlobalEvents();
-    render();
+    loadGames();
   </script>
 </body>
 </html>
+
 
