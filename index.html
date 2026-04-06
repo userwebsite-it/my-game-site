@@ -663,7 +663,7 @@
             <span class="search-icon">🔎</span>
             <input id="searchInput" type="text" placeholder="Search games, tags, or categories..." />
           </div>
-          <button class="btn primary" id="openAddModal">+ Add Games</button>
+          
         </div>
       </section>
 
@@ -743,53 +743,6 @@
     <div class="mobile-sidebar">
       <button class="btn small close-mobile" id="closeMobileMenu">✕</button>
       <div class="panel sidebar" id="sidebar-mobile"></div>
-    </div>
-  </div>
-
-  <div class="modal-backdrop" id="addModal">
-    <div class="modal">
-      <div class="modal-header">
-        <div>
-          <h2 style="margin:0 0 6px;">In-browser game manager</h2>
-          <div class="muted">Add one game at a time or paste a JSON array for bulk imports.</div>
-        </div>
-        <button class="btn small" id="closeAddModal">✕</button>
-      </div>
-
-      <div class="modal-grid">
-        <div class="modal-section">
-          <h3 style="margin:0;">Single game form</h3>
-          <input id="gameTitleInput" type="text" placeholder="Game title" />
-          <select id="gameCategoryInput"></select>
-          <input id="gameImageInput" type="text" placeholder="Thumbnail image URL" />
-          <input id="gameIframeInput" type="text" placeholder="Embeddable game URL / iframe source" />
-          <input id="gameTagsInput" type="text" placeholder="Tags separated by commas" />
-          <textarea id="gameDescriptionInput" rows="5" placeholder="Short description"></textarea>
-          <button class="btn primary" id="saveGameBtn">Save game</button>
-        </div>
-
-        <div class="modal-section">
-          <div class="modal-header">
-            <h3 style="margin:0;">Bulk JSON import</h3>
-            <button class="btn small" id="exportGamesBtn">Export current</button>
-          </div>
-          <textarea id="jsonInput" rows="14" style="font-family: monospace; font-size: 12px;" placeholder='[
-  {
-    "title": "Turbo Run",
-    "category": "Arcade",
-    "image": "https://your-image-url.com/thumb.jpg",
-    "iframeUrl": "https://your-site.com/games/turbo-run/index.html",
-    "tags": ["Fast", "Runner"],
-    "description": "Quick reaction arcade game.",
-    "featured": true
-  }
-]'></textarea>
-          <button class="btn light" id="importJsonBtn">Import JSON</button>
-          <div class="helper-box">
-            Best for scaling: keep your games in <strong>games.json</strong>, copy-paste a new game object, upload the matching folder into <strong>/games</strong>, and refresh.
-          </div>
-        </div>
-      </div>
     </div>
   </div>
 
@@ -899,7 +852,6 @@
     const searchInput = document.getElementById("searchInput");
     const catalogTitle = document.getElementById("catalogTitle");
     const catalogCount = document.getElementById("catalogCount");
-    const addModal = document.getElementById("addModal");
     const mobileSidebarOverlay = document.getElementById("mobileSidebarOverlay");
 
     async function loadGames() {
@@ -1208,104 +1160,13 @@
       select.innerHTML = options.map(category => `<option value="${escapeAttribute(category)}">${escapeHtml(category)}</option>`).join("");
     }
 
-    function openAddModal() {
-      populateCategorySelect();
-      addModal.classList.add("show");
-    }
-
-    function closeAddModal() {
-      addModal.classList.remove("show");
-    }
-
-    function openMobileMenu() {
+    function openMobileMenu() {() {
       renderSidebar(sidebarMobile);
       mobileSidebarOverlay.classList.add("show");
     }
 
     function closeMobileMenu() {
       mobileSidebarOverlay.classList.remove("show");
-    }
-
-    function addGameFromForm() {
-      const title = document.getElementById("gameTitleInput").value.trim();
-      const category = document.getElementById("gameCategoryInput").value.trim();
-      const image = document.getElementById("gameImageInput").value.trim();
-      const iframeUrl = document.getElementById("gameIframeInput").value.trim();
-      const tags = document.getElementById("gameTagsInput").value.trim();
-      const description = document.getElementById("gameDescriptionInput").value.trim();
-
-      if (!title || !category || !image || !iframeUrl) {
-        alert("Fill in the title, category, image URL, and game URL first.");
-        return;
-      }
-
-      const newGame = {
-        id: `${title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}`,
-        title,
-        category,
-        image,
-        iframeUrl,
-        tags: tags ? tags.split(",").map(tag => tag.trim()).filter(Boolean) : [],
-        description: description || "Added from the in-browser dashboard.",
-        rating: 4.5,
-        plays: 0,
-        featured: false,
-      };
-
-      games.unshift(newGame);
-      activeGame = newGame;
-      saveGames();
-      clearForm();
-      closeAddModal();
-      render();
-    }
-
-    function clearForm() {
-      document.getElementById("gameTitleInput").value = "";
-      document.getElementById("gameImageInput").value = "";
-      document.getElementById("gameIframeInput").value = "";
-      document.getElementById("gameTagsInput").value = "";
-      document.getElementById("gameDescriptionInput").value = "";
-      document.getElementById("jsonInput").value = "";
-    }
-
-    function importGamesFromJson() {
-      const input = document.getElementById("jsonInput").value.trim();
-      if (!input) return;
-
-      try {
-        const parsed = JSON.parse(input);
-        if (!Array.isArray(parsed)) throw new Error("JSON must be an array.");
-
-        const normalized = parsed
-          .filter(item => item.title && item.category && item.image && item.iframeUrl)
-          .map((item, index) => ({
-            id: item.id || `${item.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${Date.now()}-${index}`,
-            title: item.title,
-            category: item.category,
-            image: item.image,
-            iframeUrl: item.iframeUrl,
-            tags: Array.isArray(item.tags) ? item.tags : [],
-            description: item.description || "Imported through JSON.",
-            rating: item.rating || 4.5,
-            plays: item.plays || 0,
-            featured: !!item.featured,
-          }));
-
-        if (!normalized.length) {
-          alert("No valid game objects were found.");
-          return;
-        }
-
-        games = [...normalized, ...games];
-        activeGame = normalized[0];
-        saveGames();
-        clearForm();
-        closeAddModal();
-        render();
-      } catch (error) {
-        alert("Invalid JSON. Make sure it is an array of game objects.");
-      }
     }
 
     function exportGames() {
@@ -1336,18 +1197,8 @@
         query = e.target.value;
         renderCatalog();
       });
-
-      document.getElementById("openAddModal").addEventListener("click", openAddModal);
-      document.getElementById("closeAddModal").addEventListener("click", closeAddModal);
-      document.getElementById("saveGameBtn").addEventListener("click", addGameFromForm);
-      document.getElementById("importJsonBtn").addEventListener("click", importGamesFromJson);
-      document.getElementById("exportGamesBtn").addEventListener("click", exportGames);
       document.getElementById("openMobileMenu").addEventListener("click", openMobileMenu);
       document.getElementById("closeMobileMenu").addEventListener("click", closeMobileMenu);
-
-      addModal.addEventListener("click", (e) => {
-        if (e.target === addModal) closeAddModal();
-      });
 
       mobileSidebarOverlay.addEventListener("click", (e) => {
         if (e.target === mobileSidebarOverlay) closeMobileMenu();
