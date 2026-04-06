@@ -1155,9 +1155,7 @@
     }
 
     function populateCategorySelect() {
-      const select = document.getElementById("gameCategoryInput");
-      const options = getDynamicCategories().filter(c => c !== "All" && c !== "Featured");
-      select.innerHTML = options.map(category => `<option value="${escapeAttribute(category)}">${escapeHtml(category)}</option>`).join("");
+      return;
     }
 
     function openMobileMenu() {() {
@@ -1213,7 +1211,6 @@
       renderFeatured();
       renderTrending();
       renderCatalog();
-      populateCategorySelect();
     }
 
     bindGlobalEvents();
@@ -1221,6 +1218,7 @@
   </script>
 </body>
 </html>
+
 
 
 
