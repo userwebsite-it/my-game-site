@@ -1,1 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dodge Test</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
+    body {
+      margin: 0;
+      background: linear-gradient(180deg, #081120 0%, #030711 100%);
+      color: white;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    .hud {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      right: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 2;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .hud button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    canvas {
+      display: block;
+      width: 100vw;
+      height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(59,130,246,0.18), transparent 25%),
+        #0b1220;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.45);
+      z-index: 3;
+    }
+
+    .card {
+      width: min(90vw, 420px);
+      background: rgba(15, 23, 42, 0.96);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+
+    .card h1 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .card p {
+      color: #cbd5e1;
+      line-height: 1.6;
+      margin-bottom: 18px;
+    }
+
+    .card button {
+      background: #2563eb;
+      color: white;
+      border: none;
+      padding: 12px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="hud">
+    <div>Score: <span id="score">0</span></div>
+    <button id="restartTop">Restart</button>
+  </div>
+
+  <canvas id="game"></canvas>
+
+  <div class="overlay" id="startOverlay">
+    <div class="card">
+      <h1>Dodge Test</h1>
+      <p>
+        Move with arrow keys or A/D. Avoid the falling blocks as long as you can.
+      </p>
+      <button id="startBtn">Start Game</button>
+    </div>
+  </div>
+
+  <div class="overlay" id="gameOverOverlay" style="display:none;">
+    <div class="card">
+      <h1>Game Over</h1>
+      <p>Your final score: <span id="finalScore">0</span></p>
+      <button id="restartBtn">Play Again</button>
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("game");
+    const ctx = canvas.getContext("2d");
+
+    const scoreEl = document.getElementById("score");
+    const finalScoreEl = document.getElementById("finalScore");
+    const startOverlay = document.getElementById("startOverlay");
+    const gameOverOverlay = document.getElementById("gameOverOverlay");
+    const startBtn = document.getElementById("startBtn");
+    const restartBtn = document.getElementById("restartBtn");
+    const restartTop = document.getElementById("restartTop");
+
+    let width = 0;
+    let height = 0;
+
+    function resize() {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    }
+
+    window.addEventListener("resize", resize);
+    resize();
+
+    const player = {
+      w: 60,
+      h: 60,
+      x: 0,
+      y: 0,
+      speed: 7,
+      dx: 0
+    };
+
+    let obstacles = [];
+    let score = 0;
+    let running = false;
+    let spawnTimer = 0;
+    let frameId = null;
+
+    function resetGame() {
+      player.x = width / 2 - player.w / 2;
+      player.y = height - player.h - 30;
+      player.dx = 0;
+      obstacles = [];
+      score = 0;
+      spawnTimer = 0;
+      scoreEl.textContent = "0";
+      gameOverOverlay.style.display = "none";
+      startOverlay.style.display = "none";
+    }
+
+    function startGame() {
+      resetGame();
+      running = true;
+      loop();
+    }
+
+    function endGame() {
+      running = false;
+      finalScoreEl.textContent = score;
+      gameOverOverlay.style.display = "flex";
+      if (frameId) cancelAnimationFrame(frameId);
+    }
+
+    function spawnObstacle() {
+      const size = 30 + Math.random() * 40;
+      obstacles.push({
+        x: Math.random() * (width - size),
+        y: -size,
+        w: size,
+        h: size,
+        speed: 3 + Math.random() * 3 + score * 0.02
+      });
+    }
+
+    function update() {
+      player.x += player.dx;
+
+      if (player.x < 0) player.x = 0;
+      if (player.x + player.w > width) player.x = width - player.w;
+
+      spawnTimer++;
+      if (spawnTimer > 25) {
+        spawnObstacle();
+        spawnTimer = 0;
+      }
+
+      for (let i = obstacles.length - 1; i >= 0; i--) {
+        const o = obstacles[i];
+        o.y += o.speed;
+
+        const hit =
+          player.x < o.x + o.w &&
+          player.x + player.w > o.x &&
+          player.y < o.y + o.h &&
+          player.y + player.h > o.y;
+
+        if (hit) {
+          endGame();
+          return;
+        }
+
+        if (o.y > height) {
+          obstacles.splice(i, 1);
+          score++;
+          scoreEl.textContent = score;
+        }
+      }
+    }
+
+    function drawPlayer() {
+      ctx.fillStyle = "#60a5fa";
+      ctx.fillRect(player.x, player.y, player.w, player.h);
+
+      ctx.fillStyle = "#dbeafe";
+      ctx.fillRect(player.x + 10, player.y + 10, 10, 10);
+      ctx.fillRect(player.x + 40, player.y + 10, 10, 10);
+    }
+
+    function drawObstacles() {
+      ctx.fillStyle = "#f43f5e";
+      for (const o of obstacles) {
+        ctx.fillRect(o.x, o.y, o.w, o.h);
+      }
+    }
+
+    function drawBackground() {
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.fillStyle = "rgba(255,255,255,0.05)";
+      for (let i = 0; i < width; i += 40) {
+        ctx.fillRect(i, 0, 2, height);
+      }
+
+      for (let j = 0; j < height; j += 40) {
+        ctx.fillRect(0, j, width, 2);
+      }
+    }
+
+    function loop() {
+      if (!running) return;
+
+      update();
+      drawBackground();
+      drawPlayer();
+      drawObstacles();
+
+      frameId = requestAnimationFrame(loop);
+    }
+
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" || e.key.toLowerCase() === "a") {
+        player.dx = -player.speed;
+      }
+      if (e.key === "ArrowRight" || e.key.toLowerCase() === "d") {
+        player.dx = player.speed;
+      }
+    });
+
+    window.addEventListener("keyup", (e) => {
+      if (
+        e.key === "ArrowLeft" ||
+        e.key === "ArrowRight" ||
+        e.key.toLowerCase() === "a" ||
+        e.key.toLowerCase() === "d"
+      ) {
+        player.dx = 0;
+      }
+    });
+
+    startBtn.addEventListener("click", startGame);
+    restartBtn.addEventListener("click", startGame);
+    restartTop.addEventListener("click", startGame);
+  </script>
+</body>
+</html>
