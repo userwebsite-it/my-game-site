@@ -10,5 +10,17 @@
     "plays": 0,
     "featured": true,
     "description": "A simple self-hosted dodge game where you avoid falling blocks."
+  },
+  {
+    "id": "snake",
+    "title": "Snake",
+    "category": "Arcade",
+    "tags": ["Snake", "Classic"],
+    "image": "",
+    "iframeUrl": "games/snake/index.html",
+    "rating": 4.5,
+    "plays": 0,
+    "featured": false,
+    "description": "Classic snake game."
   }
 ]
