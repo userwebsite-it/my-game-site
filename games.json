@@ -1,12 +1,14 @@
-{
-  "id": "dodge-test",
-  "title": "Dodge Test",
-  "category": "Arcade",
-  "tags": ["Dodge", "Arcade", "Reflex"],
-  "image": "images/dodge-test.jpg",
-  "iframeUrl": "games/dodge-test/index.html",
-  "rating": 4.7,
-  "plays": 0,
-  "featured": true,
-  "description": "A simple self-hosted dodge game where you avoid falling blocks."
-}
+[
+  {
+    "id": "dodge-test",
+    "title": "Dodge Test",
+    "category": "Arcade",
+    "tags": ["Dodge", "Arcade", "Reflex"],
+    "image": "images/dodge-test.jpg",
+    "iframeUrl": "games/dodge-test/index.html",
+    "rating": 4.7,
+    "plays": 0,
+    "featured": true,
+    "description": "A simple self-hosted dodge game where you avoid falling blocks."
+  }
+]
