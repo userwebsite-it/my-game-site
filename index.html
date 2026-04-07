@@ -4,145 +4,496 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Midnight Arcade</title>
-
   <style>
+    :root {
+      --bg1: #081120;
+      --bg2: #030711;
+      --panel: rgba(255,255,255,0.05);
+      --border: rgba(255,255,255,0.1);
+      --text: #f8fbff;
+      --muted: #94a3b8;
+      --blue: #2563eb;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #0b1220;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top, rgba(37,99,235,0.18), transparent 28%),
+        linear-gradient(180deg, var(--bg1) 0%, var(--bg2) 100%);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 1500px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 16px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .sidebar {
+      padding: 18px;
+      height: calc(100vh - 32px);
+      position: sticky;
+      top: 16px;
+      overflow: auto;
+    }
+
+    .brand {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 18px;
+    }
+
+    .small {
+      font-size: 13px;
+      color: var(--muted);
+      margin-bottom: 6px;
+    }
+
+    .category-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .category-btn {
+      width: 100%;
+      text-align: left;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04);
+      color: white;
+      border-radius: 16px;
+      cursor: pointer;
+    }
+
+    .category-btn.active {
+      background: rgba(37,99,235,0.2);
+      border-color: rgba(37,99,235,0.35);
+    }
+
+    .main {
+      display: grid;
+      gap: 16px;
+    }
+
+    .topbar {
+      padding: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .title {
+      font-size: 24px;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    .search {
+      width: 360px;
+      max-width: 100%;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
       color: white;
     }
 
-    .container {
-      max-width: 1200px;
-      margin: auto;
-      padding: 20px;
+    .hero {
+      display: grid;
+      grid-template-columns: 1.5fr 0.8fr;
+      gap: 16px;
     }
 
-    h1 {
-      margin-bottom: 10px;
+    .player {
+      overflow: hidden;
     }
 
-    input {
-      padding: 10px;
-      width: 300px;
-      border-radius: 10px;
-      border: none;
-      margin-bottom: 20px;
+    .player-header {
+      padding: 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
     }
 
-    .game-player {
-      background: #111827;
-      padding: 15px;
-      border-radius: 15px;
-      margin-bottom: 20px;
+    .badge {
+      display: inline-block;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(37,99,235,0.18);
+      border: 1px solid rgba(37,99,235,0.35);
+      color: #dbeafe;
+      font-size: 13px;
     }
 
     iframe {
       width: 100%;
-      height: 500px;
-      border: none;
+      height: 600px;
+      border: 0;
       background: black;
-      border-radius: 10px;
+      display: block;
+    }
+
+    .about {
+      padding: 18px;
+      display: grid;
+      grid-template-columns: 1fr 180px;
+      gap: 16px;
+    }
+
+    .muted {
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tag {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      font-size: 12px;
+    }
+
+    .stat {
+      padding: 14px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      margin-bottom: 12px;
+    }
+
+    .stat-label {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    .featured {
+      padding: 18px;
+    }
+
+    .featured-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 14px;
+    }
+
+    .featured-item {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      padding: 12px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      border-radius: 18px;
+      cursor: pointer;
+    }
+
+    .catalog {
+      padding: 18px;
     }
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 15px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 14px;
     }
 
     .card {
-      background: #1f2937;
-      padding: 15px;
-      border-radius: 15px;
+      border: 1px solid var(--border);
+      background: rgba(255,255,255,0.05);
+      border-radius: 20px;
+      overflow: hidden;
       cursor: pointer;
+      padding: 14px;
     }
 
-    .card:hover {
-      background: #374151;
+    .card:hover,
+    .featured-item:hover,
+    .category-btn:hover {
+      background: rgba(255,255,255,0.09);
     }
 
-    .tag {
-      font-size: 12px;
-      color: #9ca3af;
+    .empty {
+      padding: 18px;
+      border: 1px dashed var(--border);
+      border-radius: 16px;
+      color: var(--muted);
     }
 
-    @media (max-width: 800px) {
-      .grid {
-        grid-template-columns: 1fr;
-      }
+    @media (max-width: 1100px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: static; height: auto; }
+      .hero { grid-template-columns: 1fr; }
+      .about { grid-template-columns: 1fr; }
+      .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 700px) {
+      .grid { grid-template-columns: 1fr; }
+      iframe { height: 420px; }
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
-    <h1>🎮 Midnight Arcade</h1>
-    <input id="search" placeholder="Search games..." />
+  <div class="app">
+    <aside class="panel sidebar">
+      <div class="small">Arcade Platform</div>
+      <div class="brand">Midnight Arcade</div>
+      <div class="small">Browse</div>
+      <div class="category-list" id="categoryList"></div>
+    </aside>
 
-    <div class="game-player">
-      <h2 id="title">Loading...</h2>
-      <iframe id="frame"></iframe>
-      <p id="desc"></p>
-    </div>
+    <main class="main">
+      <section class="panel topbar">
+        <div>
+          <div class="small">Browser-based gaming platform</div>
+          <h1 class="title">Play instantly without leaving the site</h1>
+        </div>
+        <input id="searchInput" class="search" placeholder="Search games, tags, or categories..." />
+      </section>
 
-    <div class="grid" id="grid"></div>
+      <section class="hero">
+        <div class="panel player">
+          <div class="player-header">
+            <div>
+              <div class="small">Now Playing</div>
+              <div id="activeTitle" style="font-size:24px;font-weight:bold;">Loading...</div>
+            </div>
+            <div class="badge" id="activeCategory">Category</div>
+          </div>
+
+          <iframe id="gameFrame" title="Game Player"></iframe>
+
+          <div class="about">
+            <div>
+              <h3 style="margin:0 0 10px;">About this game</h3>
+              <div class="muted" id="activeDescription"></div>
+              <div class="tags" id="activeTags"></div>
+            </div>
+            <div>
+              <div class="stat">
+                <div class="stat-label">Rating</div>
+                <div class="stat-value" id="activeRating">0</div>
+              </div>
+              <div class="stat">
+                <div class="stat-label">Plays</div>
+                <div class="stat-value" id="activePlays">0</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel featured">
+          <div class="small" style="letter-spacing:0.2em;text-transform:uppercase;">Featured Picks</div>
+          <div class="featured-list" id="featuredList"></div>
+        </div>
+      </section>
+
+      <section class="panel catalog">
+        <h2 style="margin:0;">All Games</h2>
+        <div class="grid" id="gameGrid"></div>
+      </section>
+    </main>
   </div>
 
   <script>
     let games = [];
     let activeGame = null;
+    let selectedCategory = "All";
+    let searchQuery = "";
 
-    const grid = document.getElementById("grid");
-    const frame = document.getElementById("frame");
-    const title = document.getElementById("title");
-    const desc = document.getElementById("desc");
-    const search = document.getElementById("search");
+    const categoryList = document.getElementById("categoryList");
+    const searchInput = document.getElementById("searchInput");
+    const gameGrid = document.getElementById("gameGrid");
+    const featuredList = document.getElementById("featuredList");
 
-    function loadGame(game) {
-      activeGame = game;
-      title.textContent = game.title;
-      desc.textContent = game.description || "";
-      frame.src = game.iframeUrl;
+    const activeTitle = document.getElementById("activeTitle");
+    const activeCategory = document.getElementById("activeCategory");
+    const activeDescription = document.getElementById("activeDescription");
+    const activeTags = document.getElementById("activeTags");
+    const activeRating = document.getElementById("activeRating");
+    const activePlays = document.getElementById("activePlays");
+    const gameFrame = document.getElementById("gameFrame");
+
+    function compactNumber(n) {
+      if (n >= 1000000) return (n / 1000000).toFixed(1) + "M";
+      if (n >= 1000) return (n / 1000).toFixed(1) + "K";
+      return String(n || 0);
     }
 
-    function renderGames(filter = "") {
-      const filtered = games.filter(g =>
-        g.title.toLowerCase().includes(filter.toLowerCase())
-      );
+    function getCategories() {
+      const cats = [...new Set(games.map(g => g.category))].sort();
+      return ["All", ...cats];
+    }
 
-      grid.innerHTML = filtered.map(g => `
-        <div class="card" onclick="loadGameById('${g.id}')">
-          <h3>${g.title}</h3>
-          <p class="tag">${g.category}</p>
+    function getFilteredGames() {
+      return games.filter(game => {
+        const matchesCategory =
+          selectedCategory === "All" || game.category === selectedCategory;
+
+        const q = searchQuery.trim().toLowerCase();
+        const matchesSearch =
+          !q ||
+          (game.title || "").toLowerCase().includes(q) ||
+          (game.category || "").toLowerCase().includes(q) ||
+          (game.description || "").toLowerCase().includes(q) ||
+          (game.tags || []).some(tag => tag.toLowerCase().includes(q));
+
+        return matchesCategory && matchesSearch;
+      });
+    }
+
+    function renderCategories() {
+      const categories = getCategories();
+      categoryList.innerHTML = categories.map(cat => `
+        <button class="category-btn ${cat === selectedCategory ? "active" : ""}" data-cat="${cat}">
+          ${cat}
+        </button>
+      `).join("");
+
+      categoryList.querySelectorAll(".category-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          selectedCategory = btn.dataset.cat;
+          renderCategories();
+          renderGrid();
+        });
+      });
+    }
+
+    function renderActiveGame() {
+      if (!activeGame) {
+        activeTitle.textContent = "No games found";
+        activeCategory.textContent = "None";
+        activeDescription.textContent = "";
+        activeTags.innerHTML = "";
+        activeRating.textContent = "0";
+        activePlays.textContent = "0";
+        gameFrame.removeAttribute("src");
+        return;
+      }
+
+      activeTitle.textContent = activeGame.title || "Untitled";
+      activeCategory.textContent = activeGame.category || "Unknown";
+      activeDescription.textContent = activeGame.description || "";
+      activeRating.textContent = activeGame.rating || 0;
+      activePlays.textContent = compactNumber(activeGame.plays || 0);
+      gameFrame.src = activeGame.iframeUrl || "";
+
+      activeTags.innerHTML = (activeGame.tags || []).map(tag =>
+        `<span class="tag">${tag}</span>`
+      ).join("");
+    }
+
+    function renderFeatured() {
+      const featuredGames = games.filter(g => g.featured).slice(0, 4);
+      featuredList.innerHTML = featuredGames.map(game => `
+        <div class="featured-item" data-id="${game.id}">
+          <div style="font-weight:bold;">${game.title}</div>
+          <div class="muted" style="font-size:14px;">${game.description || ""}</div>
         </div>
       `).join("");
+
+      featuredList.querySelectorAll(".featured-item").forEach(item => {
+        item.addEventListener("click", () => {
+          const game = games.find(g => g.id === item.dataset.id);
+          if (game) {
+            activeGame = game;
+            renderActiveGame();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        });
+      });
     }
 
-    function loadGameById(id) {
-      const game = games.find(g => g.id === id);
-      if (game) loadGame(game);
+    function renderGrid() {
+      const filtered = getFilteredGames();
+
+      if (!filtered.length) {
+        gameGrid.innerHTML = `<div class="empty">No games matched your search.</div>`;
+        return;
+      }
+
+      gameGrid.innerHTML = filtered.map(game => `
+        <div class="card" data-id="${game.id}">
+          <div style="font-weight:bold;font-size:18px;margin-bottom:8px;">${game.title}</div>
+          <div class="muted" style="font-size:14px;">${game.description || ""}</div>
+        </div>
+      `).join("");
+
+      gameGrid.querySelectorAll(".card").forEach(card => {
+        card.addEventListener("click", () => {
+          const game = games.find(g => g.id === card.dataset.id);
+          if (game) {
+            activeGame = game;
+            renderActiveGame();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        });
+      });
     }
 
-    async function init() {
+    async function loadGames() {
       try {
-        const res = await fetch("games.json?ts=" + Date.now());
-        games = await res.json();
+        const response = await fetch("games.json?ts=" + Date.now());
+        const data = await response.json();
 
-        loadGame(games[0]);
-        renderGames();
-      } catch (e) {
-        title.textContent = "Error loading games";
-        console.error(e);
+        if (!Array.isArray(data)) {
+          throw new Error("games.json is not an array");
+        }
+
+        games = data;
+        activeGame = games[0] || null;
+
+        renderCategories();
+        renderActiveGame();
+        renderFeatured();
+        renderGrid();
+      } catch (err) {
+        activeTitle.textContent = "Could not load games";
+        activeDescription.textContent = "Check games.json and file paths.";
+        console.error(err);
       }
     }
 
-    search.addEventListener("input", e => {
-      renderGames(e.target.value);
+    searchInput.addEventListener("input", (e) => {
+      searchQuery = e.target.value;
+      renderGrid();
     });
 
-    init();
+    loadGames();
   </script>
 </body>
 </html>
