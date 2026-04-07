@@ -1,15 +1,15 @@
 [
   {
-    "id": "dodge-test",
-    "title": "Dodge Test",
-    "category": "Arcade",
-    "tags": ["Dodge", "Arcade", "Reflex"],
-    "image": "images/dodge-test.jpg",
-    "iframeUrl": "games/dodge-test/index.html",
-    "rating": 4.7,
+    "id": "polytrack",
+    "title": "PolyTrack",
+    "category": "Racing",
+    "tags": ["Racing", "3D", "Fast"],
+    "image": "",
+    "iframeUrl": "games/polytrack/index.html",
+    "rating": 4.8,
     "plays": 0,
     "featured": true,
-    "description": "A simple self-hosted dodge game where you avoid falling blocks."
+    "description": "Fast-paced low-poly racing game."
   },
   {
     "id": "snake",
@@ -22,5 +22,17 @@
     "plays": 0,
     "featured": false,
     "description": "Classic snake game."
+  },
+  {
+    "id": "dodge-test",
+    "title": "Dodge Test",
+    "category": "Arcade",
+    "tags": ["Dodge", "Reflex"],
+    "image": "",
+    "iframeUrl": "games/dodge-test/index.html",
+    "rating": 4.2,
+    "plays": 0,
+    "featured": false,
+    "description": "Avoid falling objects and survive as long as possible."
   }
 ]
