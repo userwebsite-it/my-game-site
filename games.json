@@ -1,15 +1,15 @@
 [
   {
-    "id": "polytrack",
-    "title": "PolyTrack",
+    "id": "hexgl",
+    "title": "HexGL",
     "category": "Racing",
-    "tags": ["Racing", "3D", "Fast"],
+    "tags": ["Racing", "3D", "WebGL"],
     "image": "",
-    "iframeUrl": "https://itch.io/embed/1829893",
-    "rating": 4.8,
+    "iframeUrl": "games/hexgl/index.html",
+    "rating": 4.9,
     "plays": 0,
     "featured": true,
-    "description": "Fast-paced low-poly racing game."
+    "description": "A futuristic WebGL racing game with fast hovercraft gameplay."
   },
   {
     "id": "snake",
