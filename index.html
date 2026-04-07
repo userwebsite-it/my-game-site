@@ -2,45 +2,147 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Midnight Arcade Test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Midnight Arcade</title>
+
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #081120;
+      background: #0b1220;
       color: white;
     }
-    .wrap {
+
+    .container {
       max-width: 1200px;
-      margin: 0 auto;
+      margin: auto;
       padding: 20px;
     }
-    .box {
-      background: rgba(255,255,255,0.06);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 20px;
-      padding: 20px;
+
+    h1 {
+      margin-bottom: 10px;
     }
+
+    input {
+      padding: 10px;
+      width: 300px;
+      border-radius: 10px;
+      border: none;
+      margin-bottom: 20px;
+    }
+
+    .game-player {
+      background: #111827;
+      padding: 15px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+    }
+
     iframe {
       width: 100%;
-      height: 700px;
-      border: 0;
+      height: 500px;
+      border: none;
       background: black;
-      border-radius: 16px;
-      margin-top: 16px;
+      border-radius: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+    }
+
+    .card {
+      background: #1f2937;
+      padding: 15px;
+      border-radius: 15px;
+      cursor: pointer;
+    }
+
+    .card:hover {
+      background: #374151;
+    }
+
+    .tag {
+      font-size: 12px;
+      color: #9ca3af;
+    }
+
+    @media (max-width: 800px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
+
 <body>
-  <div class="wrap">
-    <div class="box">
-      <h1>Midnight Arcade Test</h1>
-      <p>If Snake loads below, your game files are fine and the issue is only the homepage script.</p>
-      <iframe src="games/snake/index.html"></iframe>
+  <div class="container">
+    <h1>🎮 Midnight Arcade</h1>
+    <input id="search" placeholder="Search games..." />
+
+    <div class="game-player">
+      <h2 id="title">Loading...</h2>
+      <iframe id="frame"></iframe>
+      <p id="desc"></p>
     </div>
+
+    <div class="grid" id="grid"></div>
   </div>
+
+  <script>
+    let games = [];
+    let activeGame = null;
+
+    const grid = document.getElementById("grid");
+    const frame = document.getElementById("frame");
+    const title = document.getElementById("title");
+    const desc = document.getElementById("desc");
+    const search = document.getElementById("search");
+
+    function loadGame(game) {
+      activeGame = game;
+      title.textContent = game.title;
+      desc.textContent = game.description || "";
+      frame.src = game.iframeUrl;
+    }
+
+    function renderGames(filter = "") {
+      const filtered = games.filter(g =>
+        g.title.toLowerCase().includes(filter.toLowerCase())
+      );
+
+      grid.innerHTML = filtered.map(g => `
+        <div class="card" onclick="loadGameById('${g.id}')">
+          <h3>${g.title}</h3>
+          <p class="tag">${g.category}</p>
+        </div>
+      `).join("");
+    }
+
+    function loadGameById(id) {
+      const game = games.find(g => g.id === id);
+      if (game) loadGame(game);
+    }
+
+    async function init() {
+      try {
+        const res = await fetch("games.json?ts=" + Date.now());
+        games = await res.json();
+
+        loadGame(games[0]);
+        renderGames();
+      } catch (e) {
+        title.textContent = "Error loading games";
+        console.error(e);
+      }
+    }
+
+    search.addEventListener("input", e => {
+      renderGames(e.target.value);
+    });
+
+    init();
+  </script>
 </body>
 </html>
-
-
